@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Define the Java process name
+java_process="java"
+
 # Error
 error() {
 	echo "Invalid options and arguments :"
@@ -35,14 +38,30 @@ stopall() {
 	# Stop velocity server session0 pain2
 	tmux send-keys -t 0.2 'stop' Enter
 
-	sleep 4
+	sleep 5
 
-	# Force Stop main server session0 pane0
-	tmux send-keys -t 0.0 C-c
+	if pgrep -x "$java_process" >/dev/null; then
+		echo "Java process is running."
+		echo "Stoping Java process....."
 
-	# Force Stop lobby server session0 pane1
-	tmux send-keys -t 0.1 C-c
-	echo "all server stopped."
+		# Check for changes in the process status
+		while pgrep -x "$java_process" >/dev/null; do
+
+			# Force Stop main server session0 pane0
+			tmux send-keys -t 0.0 C-c
+
+			# Force Stop lobby server session0 pane1
+			tmux send-keys -t 0.1 C-c
+
+			sleep 1
+		done
+
+		# If the loop exits, it means the Java process has stopped
+		echo "Java process has stopped."
+		echo "All server stopped successfully."
+	else
+		echo "Java process is not running."
+	fi
 }
 
 while [ True ]; do
@@ -79,19 +98,41 @@ while [ True ]; do
 			# Stop main server session0 pane0
 			tmux send-keys -t 0.0 'stop' Enter
 			echo "stopping main..."
+
 			sleep 4
-			# Force Stop main server session0 pane0
-			tmux send-keys -t 0.0 C-c
-			echo "main stopped successfully."
+
+			if pgrep -x "$java_process" >/dev/null; then
+				echo "Java process is running."
+				echo "Stoping Java process....."
+
+				# Force Stop server
+				tmux send-keys -t 0.0 C-c
+
+				echo "Java process has stopped."
+				echo "main stopped successfully."
+			else
+				echo "Java process is not running."
+			fi
 			break
 		elif [ "$2" = "lobby" ]; then
 			# Stop lobby server session0 pane1
 			tmux send-keys -t 0.1 'stop' Enter
 			echo "stopping lobby..."
+
 			sleep 4
-			# Force Stop main server session0 pane1
-			tmux send-keys -t 0.1 C-c
-			echo "lobby stopped successfully."
+
+			if pgrep -x "$java_process" >/dev/null; then
+				echo "Java process is running."
+				echo "Stoping Java process....."
+
+				# Force Stop server
+				tmux send-keys -t 0.1 C-c
+
+				echo "Java process has stopped."
+				echo "Lobby stopped successfully"
+			else
+				echo "Java process is not running."
+			fi
 			break
 		elif [ "$2" = "velocity" ]; then
 			# Stop velocity server session0 pane1
