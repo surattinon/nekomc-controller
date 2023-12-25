@@ -53,7 +53,7 @@ stopall() {
 			# Force Stop lobby server session0 pane1
 			tmux send-keys -t 0.1 C-c
 
-			sleep 1
+			sleep 5
 		done
 
 		# If the loop exits, it means the Java process has stopped
